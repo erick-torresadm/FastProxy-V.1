@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { baserowApi } from '../lib/baserowApi';
 import type { ProxyItem } from '../lib/baserowApi';
-import { LogOut, Copy, Globe, Clock, User, RefreshCw, Moon, Sun, Menu, X } from 'lucide-react';
+import { LogOut, Copy, Globe, Clock, User, RefreshCw, Moon, Sun, Menu, X, Calendar, CheckCircle, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { FastProxyLogo } from '../components/FastProxyLogo';
@@ -60,13 +60,20 @@ export default function Dashboard() {
             <Globe className="h-5 w-5 text-white" />
             <h3 className="text-lg font-medium text-white">Detalhes do Proxy</h3>
           </div>
-          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-            proxy.status === 'active' 
-              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' 
-              : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
-          }`}>
-            {proxy.status === 'active' ? 'ATIVO' : 'EXPIRADO'}
-          </span>
+          <div className="flex items-center space-x-2">
+            {proxy.status === 'active' ? (
+              <CheckCircle className="h-5 w-5 text-green-400" />
+            ) : (
+              <XCircle className="h-5 w-5 text-red-400" />
+            )}
+            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+              proxy.status === 'active' 
+                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' 
+                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
+            }`}>
+              {proxy.status === 'active' ? 'ATIVO' : 'EXPIRADO'}
+            </span>
+          </div>
         </div>
         {proxy.name && (
           <div className="mt-2 flex items-center space-x-2 text-white text-sm">
@@ -137,11 +144,24 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 border-t border-gray-100 dark:border-dark-border space-y-4 sm:space-y-0">
-          <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-dark-text-secondary">
-            <Clock className="h-4 w-4 flex-shrink-0" />
-            <span className="truncate">Expira em: {format(new Date(proxy.expires_at), "d 'de' MMMM 'de' yyyy", { locale: ptBR })}</span>
+        <div className="flex flex-col space-y-4 pt-4 border-t border-gray-100 dark:border-dark-border">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {proxy.purchase_date && (
+              <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-dark-text-secondary">
+                <Calendar className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">
+                  Comprado em: {format(new Date(proxy.purchase_date), "d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                </span>
+              </div>
+            )}
+            <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-dark-text-secondary">
+              <Clock className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">
+                Expira em: {format(new Date(proxy.expires_at), "d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+              </span>
+            </div>
           </div>
+
           <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
             <button
               onClick={() => handleCopy(`${proxy.ip}:${proxy.port}:${proxy.username}:${proxy.password}`, `full-${proxy.id}`)}
@@ -159,6 +179,14 @@ export default function Dashboard() {
             </button>
           </div>
         </div>
+
+        {proxy.notes && (
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-dark-border">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              <span className="font-medium">Observações:</span> {proxy.notes}
+            </p>
+          </div>
+        )}
       </div>
     </motion.div>
   );

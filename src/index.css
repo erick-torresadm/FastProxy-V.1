@@ -1,3 +1,110 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased text-gray-900 dark:text-white;
+  }
+}
+
+@layer components {
+  .input-field {
+    @apply appearance-none block w-full px-4 py-3 border rounded-lg shadow-sm 
+    bg-white dark:bg-gray-800/50 
+    border-gray-300 dark:border-gray-600
+    placeholder-gray-400 dark:placeholder-gray-500
+    focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+    transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply flex justify-center items-center px-6 py-3 border border-transparent 
+    rounded-lg shadow-sm text-base font-medium text-white
+    bg-gradient-to-r from-primary-600 to-primary-700
+    hover:from-primary-500 hover:to-primary-600
+    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500
+    disabled:opacity-50 disabled:cursor-not-allowed
+    transition-all duration-200;
+  }
+
+  .card {
+    @apply bg-white dark:bg-dark-card rounded-xl shadow-lg hover:shadow-xl
+    border border-gray-100 dark:border-dark-border
+    transition-all duration-300;
+  }
+
+  .card-header {
+    @apply p-6 bg-gradient-to-r from-primary-600 to-primary-700 
+    rounded-t-xl border-b border-primary-500/20;
+  }
+
+  .card-body {
+    @apply p-6 space-y-6;
+  }
+
+  .data-field {
+    @apply flex items-center justify-between p-4 
+    bg-gray-50 dark:bg-dark-bg rounded-lg
+    border border-gray-100 dark:border-dark-border
+    transition-colors duration-200;
+  }
+
+  .badge {
+    @apply px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  .badge-success {
+    @apply bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300;
+  }
+
+  .badge-error {
+    @apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-600;
+}
+
+/* Smooth transitions for dark mode */
+.dark {
+  color-scheme: dark;
+}
+
+* {
+  @apply transition-colors duration-200;
+}
+
+/* Glass morphism effect */
+.glass {
+  @apply backdrop-blur-lg bg-white/10 border border-white/20;
+}
+
+/* Animation classes */
+.animate-enter {
+  @apply animate-fade-in;
+}
+
+.animate-enter-up {
+  @apply animate-slide-up;
+}
+
+/* Focus styles */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-dark-bg;
+}
