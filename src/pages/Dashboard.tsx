@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TagSelector } from '../components/TagSelector';
 import { ProxyTags } from '../components/ProxyTags';
 import { tagApi } from '../lib/tagApi';
+import { TawkToChat } from '../components/TawkToChat';
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
@@ -441,6 +442,7 @@ export default function Dashboard() {
           </div>
         )}
       </main>
+      <TawkToChat />
     </div>
   );
 }
