@@ -119,6 +119,13 @@ export class BaserowAPI {
 
   async getUserProxies(email: string): Promise<ProxyItem[]> {
     try {
+      // Get the user's ID from the auth session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) {
+        throw new Error('User not authenticated');
+      }
+      const userId = session.user.id;
+
       // First try to get from Supabase
       const { data: proxyFastData, error: proxyFastError } = await supabase
         .from('proxy_fast')
@@ -148,13 +155,13 @@ export class BaserowAPI {
         if (!userProxy.Notes) return [];
 
         const parsedProxies = this.parseProxyString(userProxy.Notes);
-        return parsedProxies.map((proxy, index): ProxyItem => {
+        return parsedProxies.map((proxy): ProxyItem => {
           const purchaseDate = userProxy['Data de Compra'];
           const isActive = this.isProxyActive(purchaseDate || '');
           const expiresAt = purchaseDate ? this.calculateExpirationDate(purchaseDate) : new Date().toISOString();
 
           return {
-            id: `${userProxy.id}-${index}`,
+            id: `${userProxy.id}`,
             ip: proxy.ip,
             port: proxy.port,
             username: proxy.username,
@@ -175,6 +182,7 @@ export class BaserowAPI {
         const { error: insertError } = await supabase
           .from('proxy_fast')
           .insert(allProxies.map(proxy => ({
+            user_id: userId,
             email: email,
             name: proxy.name,
             proxy_data: {

@@ -9,6 +9,7 @@ import Analytics from './pages/Analytics';
 import Support from './pages/Support';
 import Tutorials from './pages/Tutorials';
 import ProxyChecker from './pages/ProxyChecker';
+import ProxyManager from './pages/ProxyManager';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Sidebar } from './components/Sidebar';
 import { NotificationPopup } from './components/NotificationPopup';
@@ -43,6 +44,19 @@ function App() {
                       <Sidebar />
                       <div className="lg:ml-64 flex-1">
                         <ProxyChecker />
+                      </div>
+                    </div>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/proxy-manager"
+                element={
+                  <ProtectedRoute>
+                    <div className="flex">
+                      <Sidebar />
+                      <div className="lg:ml-64 flex-1">
+                        <ProxyManager />
                       </div>
                     </div>
                   </ProtectedRoute>

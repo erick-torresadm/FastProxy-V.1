@@ -3,11 +3,13 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { baserowApi } from '../lib/baserowApi';
 import type { ProxyItem } from '../lib/baserowApi';
-import { LogOut, Copy, Globe, Clock, User, RefreshCw, Moon, Sun, Menu, X, Calendar, CheckCircle, XCircle, Download, ShoppingCart } from 'lucide-react';
+import { LogOut, Copy, Globe, Clock, User, RefreshCw, Moon, Sun, Menu, X, Calendar, CheckCircle, XCircle, Download, ShoppingCart, Tag as TagIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { FastProxyLogo } from '../components/FastProxyLogo';
 import { motion, AnimatePresence } from 'framer-motion';
+import { TagSelector } from '../components/TagSelector';
+import { ProxyTags } from '../components/ProxyTags';
+import { tagApi } from '../lib/tagApi';
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
@@ -18,6 +20,8 @@ export default function Dashboard() {
   const [copiedField, setCopiedField] = useState<string>('');
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [proxyTags, setProxyTags] = useState<{ [key: string]: string[] }>({});
+  const [showTagSelector, setShowTagSelector] = useState<string | null>(null);
 
   const handleDownloadNotes = (proxy: ProxyItem) => {
     if (!proxy.notes) return;
@@ -44,6 +48,14 @@ export default function Dashboard() {
       const userProxies = await baserowApi.getUserProxies(user.email);
       setProxies(userProxies);
       setLastUpdated(new Date());
+
+      // Load tags for each proxy
+      const tagsMap: { [key: string]: string[] } = {};
+      for (const proxy of userProxies) {
+        const tags = await tagApi.getProxyTags(proxy.id);
+        tagsMap[proxy.id] = tags.map(tag => tag.name);
+      }
+      setProxyTags(tagsMap);
     } catch (err) {
       setError('Não foi possível carregar os dados do proxy. Tente novamente mais tarde.');
       console.error('Failed to fetch proxy data:', err);
@@ -66,6 +78,36 @@ export default function Dashboard() {
 
   const handlePurchase = () => {
     window.open('https://lastlink.com/p/C72B31E79/checkout-payment', '_blank');
+  };
+
+  const handleAddTag = async (proxyId: string, tag: string) => {
+    try {
+      const { id: tagId } = await tagApi.createTag(user!.id, tag, '#4B5563');
+      await tagApi.addTagToProxy(proxyId, tagId);
+      setProxyTags(prev => ({
+        ...prev,
+        [proxyId]: [...(prev[proxyId] || []), tag]
+      }));
+      setShowTagSelector(null);
+    } catch (err) {
+      console.error('Error adding tag:', err);
+    }
+  };
+
+  const handleRemoveTag = async (proxyId: string, tag: string) => {
+    try {
+      const tags = await tagApi.getTags(user!.id);
+      const tagToRemove = tags.find(t => t.name === tag);
+      if (tagToRemove) {
+        await tagApi.removeTagFromProxy(proxyId, tagToRemove.id);
+        setProxyTags(prev => ({
+          ...prev,
+          [proxyId]: prev[proxyId].filter(t => t !== tag)
+        }));
+      }
+    } catch (err) {
+      console.error('Error removing tag:', err);
+    }
   };
 
   const ProxyCard = ({ proxy }: { proxy: ProxyItem }) => (
@@ -200,6 +242,31 @@ export default function Dashboard() {
           </div>
         </div>
 
+        <div className="pt-4 border-t border-gray-100 dark:border-dark-border space-y-4">
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Tags</h4>
+            <button
+              onClick={() => setShowTagSelector(proxy.id)}
+              className="flex items-center space-x-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+            >
+              <TagIcon className="h-4 w-4" />
+              <span>Adicionar Tag</span>
+            </button>
+          </div>
+
+          {showTagSelector === proxy.id && (
+            <TagSelector
+              onTagSelect={(tag) => handleAddTag(proxy.id, tag)}
+              className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg"
+            />
+          )}
+
+          <ProxyTags
+            tags={proxyTags[proxy.id] || []}
+            onRemoveTag={(tag) => handleRemoveTag(proxy.id, tag)}
+          />
+        </div>
+
         {proxy.notes && (
           <div className="mt-4 pt-4 border-t border-gray-100 dark:border-dark-border">
             <div className="flex justify-end">
@@ -223,8 +290,7 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <FastProxyLogo className="h-8" />
-              <h1 className="ml-2 text-xl font-semibold bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent hidden sm:block">
+              <h1 className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent">
                 Painel de Proxy
               </h1>
             </div>
