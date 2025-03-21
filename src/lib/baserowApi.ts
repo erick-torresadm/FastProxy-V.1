@@ -123,16 +123,15 @@ export class BaserowAPI {
       const { data: proxyFastData, error: proxyFastError } = await supabase
         .from('proxy_fast')
         .select('*')
-        .eq('email', email)
-        .single();
+        .eq('email', email);
 
-      if (proxyFastData && !proxyFastError) {
-        return [{
-          id: proxyFastData.id,
-          ...proxyFastData.proxy_data,
-          email: proxyFastData.email,
-          name: proxyFastData.name
-        }];
+      if (proxyFastData?.length && !proxyFastError) {
+        return proxyFastData.map(data => ({
+          id: data.id,
+          ...data.proxy_data,
+          email: data.email,
+          name: data.name
+        }));
       }
 
       // If not in Supabase, fetch from Baserow
@@ -175,20 +174,20 @@ export class BaserowAPI {
       if (allProxies.length > 0) {
         const { error: insertError } = await supabase
           .from('proxy_fast')
-          .insert({
+          .insert(allProxies.map(proxy => ({
             email: email,
-            name: userProxies[0].Name,
+            name: proxy.name,
             proxy_data: {
-              ip: allProxies[0].ip,
-              port: allProxies[0].port,
-              username: allProxies[0].username,
-              password: allProxies[0].password,
-              status: allProxies[0].status,
-              expires_at: allProxies[0].expires_at,
-              purchase_date: allProxies[0].purchase_date,
-              notes: allProxies[0].notes
+              ip: proxy.ip,
+              port: proxy.port,
+              username: proxy.username,
+              password: proxy.password,
+              status: proxy.status,
+              expires_at: proxy.expires_at,
+              purchase_date: proxy.purchase_date,
+              notes: proxy.notes
             }
-          });
+          })));
 
         if (insertError) {
           console.error('Error storing proxy data in Supabase:', insertError);

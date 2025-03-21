@@ -5,7 +5,13 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import Analytics from './pages/Analytics';
+import Support from './pages/Support';
+import Tutorials from './pages/Tutorials';
+import ProxyChecker from './pages/ProxyChecker';
 import ProtectedRoute from './components/ProtectedRoute';
+import { Sidebar } from './components/Sidebar';
+import { NotificationPopup } from './components/NotificationPopup';
 
 function App() {
   return (
@@ -17,15 +23,73 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route
-                path="/dashboard/*"
+                path="/dashboard"
                 element={
                   <ProtectedRoute>
-                    <Dashboard />
+                    <div className="flex">
+                      <Sidebar />
+                      <div className="lg:ml-64 flex-1">
+                        <Dashboard />
+                      </div>
+                    </div>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/proxy-checker"
+                element={
+                  <ProtectedRoute>
+                    <div className="flex">
+                      <Sidebar />
+                      <div className="lg:ml-64 flex-1">
+                        <ProxyChecker />
+                      </div>
+                    </div>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/analytics"
+                element={
+                  <ProtectedRoute>
+                    <div className="flex">
+                      <Sidebar />
+                      <div className="lg:ml-64 flex-1">
+                        <Analytics />
+                      </div>
+                    </div>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tutorials"
+                element={
+                  <ProtectedRoute>
+                    <div className="flex">
+                      <Sidebar />
+                      <div className="lg:ml-64 flex-1">
+                        <Tutorials />
+                      </div>
+                    </div>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/support"
+                element={
+                  <ProtectedRoute>
+                    <div className="flex">
+                      <Sidebar />
+                      <div className="lg:ml-64 flex-1">
+                        <Support />
+                      </div>
+                    </div>
                   </ProtectedRoute>
                 }
               />
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
             </Routes>
+            <NotificationPopup />
           </div>
         </AuthProvider>
       </ThemeProvider>
@@ -33,4 +97,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

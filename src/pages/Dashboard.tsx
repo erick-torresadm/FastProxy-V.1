@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { baserowApi } from '../lib/baserowApi';
 import type { ProxyItem } from '../lib/baserowApi';
-import { LogOut, Copy, Globe, Clock, User, RefreshCw, Moon, Sun, Menu, X, Calendar, CheckCircle, XCircle } from 'lucide-react';
+import { LogOut, Copy, Globe, Clock, User, RefreshCw, Moon, Sun, Menu, X, Calendar, CheckCircle, XCircle, Download, ShoppingCart } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { FastProxyLogo } from '../components/FastProxyLogo';
@@ -18,6 +18,22 @@ export default function Dashboard() {
   const [copiedField, setCopiedField] = useState<string>('');
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleDownloadNotes = (proxy: ProxyItem) => {
+    if (!proxy.notes) return;
+
+    const content = `${proxy.notes}\n\nDetalhes do Proxy:\nIP: ${proxy.ip}\nPorta: ${proxy.port}\nUsuário: ${proxy.username}\nSenha: ${proxy.password}\nStatus: ${proxy.status}\nExpira em: ${format(new Date(proxy.expires_at), "d 'de' MMMM 'de' yyyy", { locale: ptBR })}`;
+    
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `proxy-info-${proxy.username}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
 
   const loadUserProxies = async () => {
     if (!user?.email) return;
@@ -48,11 +64,15 @@ export default function Dashboard() {
     setTimeout(() => setCopiedField(''), 2000);
   };
 
+  const handlePurchase = () => {
+    window.open('https://lastlink.com/p/C72B31E79/checkout-payment', '_blank');
+  };
+
   const ProxyCard = ({ proxy }: { proxy: ProxyItem }) => (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-dark-card rounded-lg shadow-md overflow-hidden transition-all duration-200 hover:shadow-lg"
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all duration-200 hover:shadow-lg"
     >
       <div className="p-4 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800">
         <div className="flex items-center justify-between">
@@ -182,9 +202,15 @@ export default function Dashboard() {
 
         {proxy.notes && (
           <div className="mt-4 pt-4 border-t border-gray-100 dark:border-dark-border">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              <span className="font-medium">Observações:</span> {proxy.notes}
-            </p>
+            <div className="flex justify-end">
+              <button
+                onClick={() => handleDownloadNotes(proxy)}
+                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-sm font-medium rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 shadow-md hover:shadow-lg"
+              >
+                <Download className="h-5 w-5 mr-2" />
+                Baixar Informações
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -308,7 +334,16 @@ export default function Dashboard() {
 
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white">Seus Proxies</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white">Seus Proxies</h2>
+            <button
+              onClick={handlePurchase}
+              className="ml-4 inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white text-sm font-medium rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-md hover:shadow-lg"
+            >
+              <ShoppingCart className="h-5 w-5 mr-2" />
+              Comprar Mais Proxies
+            </button>
+          </div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Última atualização: {format(lastUpdated, "d 'de' MMMM 'às' HH:mm", { locale: ptBR })}
           </p>
